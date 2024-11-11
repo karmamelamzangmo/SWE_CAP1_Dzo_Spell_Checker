@@ -1,47 +1,31 @@
-import sys
-import chardet
+import re
 
-def detect_encoding(file_path):
-    with open(file_path, 'rb') as file:
-        result = chardet.detect(file.read())
-        return result['encoding']
-
-def load_dictionary(clean_dictionary):
-    # Detect encoding of the dictionary file
-    encoding = detect_encoding(clean_dictionary)
-    print(f"Detected encoding for dictionary: {encoding}")
-
-    # Load words from the dictionary with the detected encoding
-    with open(clean_dictionary, 'r', encoding=encoding) as f:
-        dictionary = set(word.strip() for word in f.readlines())
-    return dictionary
-
-def spell_check(input_file, dictionary):
-    # Read the Dzongkha text file
-    with open(input_file, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-
-    # Iterate through each line
+def spell_checker(text, dictionary):
+    results = []
+    lines = text.splitlines()  # Split text by lines
     for line_num, line in enumerate(lines, start=1):
-        words = line.strip().split()
-        # Check each word in the line
+        words = re.findall(r'\b\w+\b', line)  # Extract words from each line
         for word_pos, word in enumerate(words, start=1):
             if word not in dictionary:
-                # Print the error in the specified format
-                print(f"line {line_num}, {word_pos}th word '{word}' is incorrect.")
+                results.append({
+                    "line": line_num,
+                    "position": word_pos,
+                    "incorrect_word": word
+                })
+    return results
 
-def main():
-    # Ensure that the correct number of arguments are provided
-    if len(sys.argv) != 2:
-        print("Usage: python dzongkha_spell_checker.py dzo.txt")
-        return
+# Sample input text in Tibetan (for demonstration)
+text = """༉ རྒྱལ་ཡོངས་ རོ་ཁྱིའི ་གྱངས་ཁ་ ཚད་འཛིན ་གྱི་ ལས་ རིམ་ དང་ འབྲེལ་ ཏེ་ རྒྱལ་ཁབ་ ནང་ ...
+འགོ་དཔོན་ུ་ གིས་ སླབ་ མི་ ནང་ ཞིབ་འཇུག་ དེ་ལས་ བརྟེན་ཏེ་ བདུན་ཕྲག་ ༢ ཀྱི་ རིང་ ལུ་ འགོ་ ...
+ལས་རིམ་འདི་གི་ཆ་ཤས་ཅིག་སྦེ་ དུས་ཅི་ སྤྱི་ཟླ་༡༠པའི་ནང་ ཐིམ་ཕུག་ལུ་ ...
+"""
 
-    input_file = sys.argv[1]
-    dictionary_file = 'cleaned_dictionary.txt'  # Ensure this file is already cleaned and prepared
+# Sample dictionary of correct words (replace with a comprehensive Tibetan dictionary as needed)
+dictionary = {"རྒྱལ་ཡོངས་", "རོ་ཁྱིའི", "གྱངས་ཁ་", "ལས་", "རིམ་", "དང་", "རྒྱལ་ཁབ་", "ནང་", ... }
 
-    # Load the dictionary and perform spell check
-    dictionary = load_dictionary(dictionary_file)
-    spell_check(input_file, dictionary)
+# Run the spell checker
+misspelled_words = spell_checker(text, dictionary)
 
-if __name__ == "__main__":
-    main()
+# Display the results
+for entry in misspelled_words:
+    print(f"Line {entry['line']}, Position {entry['position']}: {entry['incorrect_word']}")

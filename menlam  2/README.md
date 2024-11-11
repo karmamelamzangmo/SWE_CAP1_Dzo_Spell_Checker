@@ -1,4 +1,5 @@
-## https://github.com/karmamelamzangmo/SWE_CAP1_Dz0_Spell_Checker.git
+## https://github.com/karmamelamzangmo/SWE_CAP1_Dzo_Spell_Checker.git
+
 
 
 ## Karma melam zangmo
